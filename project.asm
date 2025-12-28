@@ -14,23 +14,22 @@
     ; متن هایی که قراره چاپ بشه
     msgName       DB 'Enter Name: $'
     msgRadius     DB 13, 10, 'Enter Radius (e.g. 50): $'
-    msgGroup      DB 13, 10, 'Group Name: group3', 13, 10, 'Group Number: 3', 13, 10, '$'
+    msgGroup      DB 13, 10, 'Group Name: group3', 13, 10, '$'
     msgNewline    DB 13, 10, '$'
     
     ; اسم هایی که باید چک کنیم
     strMehdi      DB 'mehdi'
-    strMasoud     DB 'masoud'
     
     ; اینجا اسم ورودی رو ذخیره میکنیم
     ; ساختارش اینطوریه: اول حداکثر طول، بعد طول واقعی که کاربر وارد کرده، بعد خود کاراکترها
     nameBuffer    DB 20, ?, 20 DUP(?)
     
     ; متغیرهای برنامه
-    radius        DW ?    ; شعاعی که کاربر میده
-    currentRadius DW ?    ; شعاع فعلی برای کشیدن دایره ها
-    centerX       DW 160  ; مرکز صفحه (X)
-    centerY       DW 100  ; مرکز صفحه (Y)
-    color         DB 15   ; رنگ قلم (اولش سفیده)
+    radius        DW ?                                            ; شعاعی که کاربر میده
+    currentRadius DW ?                                            ; شعاع فعلی برای کشیدن دایره ها
+    centerX       DW 160                                          ; مرکز صفحه (X)
+    centerY       DW 100                                          ; مرکز صفحه (Y)
+    color         DB 15                                           ; رنگ قلم (اولش سفیده)
     
     ; اینا برای تبدیل رشته به عدد لازمه
     numInput      DW 0
@@ -57,25 +56,12 @@ MAIN PROC
                           MOV  AH, 09h
                           INT  21h
 
-    ; چک میکنیم ببینیم اسمش masoud هست یا نه؟
+    ; چک میکنیم ببینیم اسمش mehdi هست یا نه؟
+    ; اگر mehdi بود میریم سراغ رسم، وگرنه میایم بیرون (برای هر اسم دیگه ای مثل masoud)
                           LEA  SI, nameBuffer+2         ; آدرس جایی که اسم وارد شده
                           MOV  CL, [nameBuffer+1]       ; طول اسمی که وارد کرده
-                          CMP  CL, 6                    ; طول masoud شش حرفه
-                          JNE  CHECK_MEHDI              ; اگه 6 حرف نبود پس مسعود نیست، برو بعدی
-    
-                          LEA  DI, strMasoud
-                          MOV  CH, 0
-                          MOV  CL, 6                    ; طول رو میدیم به تابع مقایسه
-                          CALL STR_COMPARE
-                          CMP  AL, 1
-                          JE   EXIT_APP                 ; اگه 1 برگردوند یعنی مسعود بود، پس خداحافظ
-
-    CHECK_MEHDI:          
-    ; حالا چک میکنیم ببینیم mehdi هست یا نه؟
-                          LEA  SI, nameBuffer+2
-                          MOV  CL, [nameBuffer+1]
                           CMP  CL, 5                    ; طول mehdi پنج حرفه
-                          JNE  EXIT_APP                 ; اگه 5 حرف نبود پس مهدی هم نیست، تموم کن
+                          JNE  EXIT_APP                 ; اگه 5 حرف نبود پس مهدی نیست، خداحافظ
     
                           LEA  DI, strMehdi
                           MOV  CH, 0
@@ -146,286 +132,286 @@ MAIN PROC
                           INT  21h
 MAIN ENDP
 
-; =====================================================
-; اینجا توابع کمکی رو نوشتم که کدم شلوغ نشه
-; =====================================================
+    ; =====================================================
+    ; اینجا توابع کمکی رو نوشتم که کدم شلوغ نشه
+    ; =====================================================
 
-; -----------------------------------------------------
-; تابع مقایسه دو تا رشته
-; ورودی: آدرس دو تا رشته و طولشون رو میدیم
-; خروجی: اگه برابر بودن AL=1 میشه، اگه نه AL=0
-; -----------------------------------------------------
+    ; -----------------------------------------------------
+    ; تابع مقایسه دو تا رشته
+    ; ورودی: آدرس دو تا رشته و طولشون رو میدیم
+    ; خروجی: اگه برابر بودن AL=1 میشه، اگه نه AL=0
+    ; -----------------------------------------------------
 STR_COMPARE PROC
-    PUSH SI
-    PUSH DI
-    PUSH CX
-    PUSH BX
+                          PUSH SI
+                          PUSH DI
+                          PUSH CX
+                          PUSH BX
 
-COMPARE_LOOP:
-    MOV  AL, [SI]                 ; حرف اول رو برمیداریم
-    MOV  BL, [DI]                 ; حرف دوم رو برمیداریم
-    CMP  AL, BL                   ; مقایسه میکنیم
-    JNE  STR_NOT_EQUAL            ; اگه یکی نبودن بپر بیرون
+    COMPARE_LOOP:         
+                          MOV  AL, [SI]                 ; حرف اول رو برمیداریم
+                          MOV  BL, [DI]                 ; حرف دوم رو برمیداریم
+                          CMP  AL, BL                   ; مقایسه میکنیم
+                          JNE  STR_NOT_EQUAL            ; اگه یکی نبودن بپر بیرون
     
-    INC  SI                       ; برو حرف بعدی
-    INC  DI                       ; برو حرف بعدی
-    LOOP COMPARE_LOOP             ; تکرار کن تا تموم بشه
+                          INC  SI                       ; برو حرف بعدی
+                          INC  DI                       ; برو حرف بعدی
+                          LOOP COMPARE_LOOP             ; تکرار کن تا تموم بشه
 
-STR_EQUAL:
-    MOV  AL, 1                    ; برابر بودن
-    JMP  STR_DONE
+    STR_EQUAL:            
+                          MOV  AL, 1                    ; برابر بودن
+                          JMP  STR_DONE
 
-STR_NOT_EQUAL:
-    MOV  AL, 0                    ; برابر نبودن
+    STR_NOT_EQUAL:        
+                          MOV  AL, 0                    ; برابر نبودن
 
-STR_DONE:
-    POP  BX
-    POP  CX
-    POP  DI
-    POP  SI
-    RET
+    STR_DONE:             
+                          POP  BX
+                          POP  CX
+                          POP  DI
+                          POP  SI
+                          RET
 STR_COMPARE ENDP
 
-; -----------------------------------------------------
-; تابع خوندن عدد از ورودی
-; چون ورودی رشته است، باید تبدیلش کنیم به عدد واقعی
-; -----------------------------------------------------
+    ; -----------------------------------------------------
+    ; تابع خوندن عدد از ورودی
+    ; چون ورودی رشته است، باید تبدیلش کنیم به عدد واقعی
+    ; -----------------------------------------------------
 READ_DECIMAL PROC
-    PUSH BX
-    PUSH CX
-    PUSH DX
+                          PUSH BX
+                          PUSH CX
+                          PUSH DX
 
-    MOV  BX, 0                    ; اینجا عدد نهایی رو میسازیم
+                          MOV  BX, 0                    ; اینجا عدد نهایی رو میسازیم
     
-READ_CHAR:
-    MOV  AH, 01h                  ; گرفتن کاراکتر
-    INT  21h
+    READ_CHAR:            
+                          MOV  AH, 01h                  ; گرفتن کاراکتر
+                          INT  21h
     
-    CMP  AL, 13                   ; اگه اینتر زد یعنی تموم شد
-    JE   READ_DONE
+                          CMP  AL, 13                   ; اگه اینتر زد یعنی تموم شد
+                          JE   READ_DONE
     
-    SUB  AL, '0'                  ; تبدیل کد اسکی به عدد واقعی
-    MOV  AH, 0
-    MOV  CX, AX                   ; رقم رو نگه میداریم
+                          SUB  AL, '0'                  ; تبدیل کد اسکی به عدد واقعی
+                          MOV  AH, 0
+                          MOV  CX, AX                   ; رقم رو نگه میداریم
     
-    MOV  AX, BX                   ; عدد قبلی رو میاریم
-    MUL  ten                      ; ضرب در 10 میکنیم (یکان میشه دهگان و ...)
-    ADD  AX, CX                   ; رقم جدید رو اضافه میکنیم
-    MOV  BX, AX                   ; ذخیره میکنیم
+                          MOV  AX, BX                   ; عدد قبلی رو میاریم
+                          MUL  ten                      ; ضرب در 10 میکنیم (یکان میشه دهگان و ...)
+                          ADD  AX, CX                   ; رقم جدید رو اضافه میکنیم
+                          MOV  BX, AX                   ; ذخیره میکنیم
     
-    JMP  READ_CHAR                ; برو بعدی
+                          JMP  READ_CHAR                ; برو بعدی
 
-READ_DONE:
-    MOV  AX, BX                   ; نتیجه رو میذاریم تو AX
+    READ_DONE:            
+                          MOV  AX, BX                   ; نتیجه رو میذاریم تو AX
     
-    POP  DX
-    POP  CX
-    POP  BX
-    RET
+                          POP  DX
+                          POP  CX
+                          POP  BX
+                          RET
 READ_DECIMAL ENDP
 
-; -----------------------------------------------------
-; بخش گرافیک
-; -----------------------------------------------------
+    ; -----------------------------------------------------
+    ; بخش گرافیک
+    ; -----------------------------------------------------
 
-; -----------------------------------------------------
-; رسم دایره با الگوریتم برزنهام
-; این الگوریتم ریاضیه و پیکسل ها رو حساب میکنه
-; -----------------------------------------------------
+    ; -----------------------------------------------------
+    ; رسم دایره با الگوریتم برزنهام
+    ; این الگوریتم ریاضیه و پیکسل ها رو حساب میکنه
+    ; -----------------------------------------------------
 DRAW_CIRCLE_BRESENHAM PROC
-    PUSH AX
-    PUSH BX
-    PUSH CX
-    PUSH DX
-    PUSH SI
-    PUSH DI
+                          PUSH AX
+                          PUSH BX
+                          PUSH CX
+                          PUSH DX
+                          PUSH SI
+                          PUSH DI
 
     ; نقطه شروع: x=0, y=شعاع
-    MOV  BX, 0                    ; X
-    MOV  DX, currentRadius        ; Y
+                          MOV  BX, 0                    ; X
+                          MOV  DX, currentRadius        ; Y
     
     ; محاسبه پارامتر تصمیم (فرمول برزنهام)
-    MOV  SI, 3
-    MOV  AX, currentRadius
-    SHL  AX, 1                    ; ضرب در 2
-    SUB  SI, AX                   ; d = 3 - 2*r
+                          MOV  SI, 3
+                          MOV  AX, currentRadius
+                          SHL  AX, 1                    ; ضرب در 2
+                          SUB  SI, AX                   ; d = 3 - 2*r
 
-CIRCLE_LOOP:
-    CMP  BX, DX                   ; تا وقتی x از y کمتره ادامه بده
-    JG   CIRCLE_DONE
+    CIRCLE_LOOP:          
+                          CMP  BX, DX                   ; تا وقتی x از y کمتره ادامه بده
+                          JG   CIRCLE_DONE
 
     ; 8 تا نقطه قرینه رو میکشیم
-    CALL PLOT_OCTANTS
+                          CALL PLOT_OCTANTS
 
     ; x رو زیاد میکنیم
-    INC  BX
+                          INC  BX
 
     ; پارامتر تصمیم رو چک میکنیم
-    CMP  SI, 0
-    JL   D_LESS_0
+                          CMP  SI, 0
+                          JL   D_LESS_0
 
     ; اگه مثبت بود
-    DEC  DX
+                          DEC  DX
     
-    MOV  AX, BX
-    SUB  AX, DX
-    SHL  AX, 1
-    SHL  AX, 1
-    ADD  SI, AX
-    ADD  SI, 10
-    JMP  CIRCLE_LOOP
+                          MOV  AX, BX
+                          SUB  AX, DX
+                          SHL  AX, 1
+                          SHL  AX, 1
+                          ADD  SI, AX
+                          ADD  SI, 10
+                          JMP  CIRCLE_LOOP
 
-D_LESS_0:
+    D_LESS_0:             
     ; اگه منفی بود
-    MOV  AX, BX
-    SHL  AX, 1
-    SHL  AX, 1
-    ADD  SI, AX
-    ADD  SI, 6
-    JMP  CIRCLE_LOOP
+                          MOV  AX, BX
+                          SHL  AX, 1
+                          SHL  AX, 1
+                          ADD  SI, AX
+                          ADD  SI, 6
+                          JMP  CIRCLE_LOOP
 
-CIRCLE_DONE:
-    POP  DI
-    POP  SI
-    POP  DX
-    POP  CX
-    POP  BX
-    POP  AX
-    RET
+    CIRCLE_DONE:          
+                          POP  DI
+                          POP  SI
+                          POP  DX
+                          POP  CX
+                          POP  BX
+                          POP  AX
+                          RET
 DRAW_CIRCLE_BRESENHAM ENDP
 
-; -----------------------------------------------------
-; رسم 8 نقطه قرینه
-; چون دایره متقارنه، با داشتن یک نقطه میشه 7 تای دیگه رو پیدا کرد
-; -----------------------------------------------------
+    ; -----------------------------------------------------
+    ; رسم 8 نقطه قرینه
+    ; چون دایره متقارنه، با داشتن یک نقطه میشه 7 تای دیگه رو پیدا کرد
+    ; -----------------------------------------------------
 PLOT_OCTANTS PROC
     ; نقطه اول
-    MOV  CX, centerX
-    ADD  CX, BX
-    MOV  DI, centerY
-    ADD  DI, DX
-    CALL PUT_PIXEL
+                          MOV  CX, centerX
+                          ADD  CX, BX
+                          MOV  DI, centerY
+                          ADD  DI, DX
+                          CALL PUT_PIXEL
 
     ; نقطه دوم
-    MOV  CX, centerX
-    SUB  CX, BX
-    MOV  DI, centerY
-    ADD  DI, DX
-    CALL PUT_PIXEL
+                          MOV  CX, centerX
+                          SUB  CX, BX
+                          MOV  DI, centerY
+                          ADD  DI, DX
+                          CALL PUT_PIXEL
 
     ; نقطه سوم
-    MOV  CX, centerX
-    ADD  CX, BX
-    MOV  DI, centerY
-    SUB  DI, DX
-    CALL PUT_PIXEL
+                          MOV  CX, centerX
+                          ADD  CX, BX
+                          MOV  DI, centerY
+                          SUB  DI, DX
+                          CALL PUT_PIXEL
 
     ; نقطه چهارم
-    MOV  CX, centerX
-    SUB  CX, BX
-    MOV  DI, centerY
-    SUB  DI, DX
-    CALL PUT_PIXEL
+                          MOV  CX, centerX
+                          SUB  CX, BX
+                          MOV  DI, centerY
+                          SUB  DI, DX
+                          CALL PUT_PIXEL
 
     ; نقطه پنجم
-    MOV  CX, centerX
-    ADD  CX, DX
-    MOV  DI, centerY
-    ADD  DI, BX
-    CALL PUT_PIXEL
+                          MOV  CX, centerX
+                          ADD  CX, DX
+                          MOV  DI, centerY
+                          ADD  DI, BX
+                          CALL PUT_PIXEL
 
     ; نقطه ششم
-    MOV  CX, centerX
-    SUB  CX, DX
-    MOV  DI, centerY
-    ADD  DI, BX
-    CALL PUT_PIXEL
+                          MOV  CX, centerX
+                          SUB  CX, DX
+                          MOV  DI, centerY
+                          ADD  DI, BX
+                          CALL PUT_PIXEL
 
     ; نقطه هفتم
-    MOV  CX, centerX
-    ADD  CX, DX
-    MOV  DI, centerY
-    SUB  DI, BX
-    CALL PUT_PIXEL
+                          MOV  CX, centerX
+                          ADD  CX, DX
+                          MOV  DI, centerY
+                          SUB  DI, BX
+                          CALL PUT_PIXEL
 
     ; نقطه هشتم
-    MOV  CX, centerX
-    SUB  CX, DX
-    MOV  DI, centerY
-    SUB  DI, BX
-    CALL PUT_PIXEL
+                          MOV  CX, centerX
+                          SUB  CX, DX
+                          MOV  DI, centerY
+                          SUB  DI, BX
+                          CALL PUT_PIXEL
 
-    RET
+                          RET
 PLOT_OCTANTS ENDP
 
-; -----------------------------------------------------
-; رسم دایره توپر
-; ترفند: هی شعاع رو کم میکنیم و دایره میکشیم تا پر بشه
-; -----------------------------------------------------
+    ; -----------------------------------------------------
+    ; رسم دایره توپر
+    ; ترفند: هی شعاع رو کم میکنیم و دایره میکشیم تا پر بشه
+    ; -----------------------------------------------------
 DRAW_FILLED_CIRCLE PROC
-    PUSH AX
-    PUSH currentRadius            ; شعاع اصلی رو نگه میداریم
+                          PUSH AX
+                          PUSH currentRadius            ; شعاع اصلی رو نگه میداریم
 
-FILL_LOOP:
-    MOV  AX, currentRadius
-    CMP  AX, 0                    ; اگه شعاع صفر شد تمومه
-    JL   FILL_DONE
+    FILL_LOOP:            
+                          MOV  AX, currentRadius
+                          CMP  AX, 0                    ; اگه شعاع صفر شد تمومه
+                          JL   FILL_DONE
     
-    CALL DRAW_CIRCLE_BRESENHAM    ; دایره بکش
+                          CALL DRAW_CIRCLE_BRESENHAM    ; دایره بکش
     
-    DEC  currentRadius            ; شعاع رو یکی کم کن
-    JMP  FILL_LOOP                ; دوباره
+                          DEC  currentRadius            ; شعاع رو یکی کم کن
+                          JMP  FILL_LOOP                ; دوباره
 
-FILL_DONE:
-    POP  currentRadius            ; شعاع اصلی رو برگردون
-    POP  AX
-    RET
+    FILL_DONE:            
+                          POP  currentRadius            ; شعاع اصلی رو برگردون
+                          POP  AX
+                          RET
 DRAW_FILLED_CIRCLE ENDP
 
-; -----------------------------------------------------
-; روشن کردن یک پیکسل روی صفحه
-; باید آدرس حافظه ویدئویی رو حساب کنیم
-; فرمول: (y * 320) + x
-; -----------------------------------------------------
+    ; -----------------------------------------------------
+    ; روشن کردن یک پیکسل روی صفحه
+    ; باید آدرس حافظه ویدئویی رو حساب کنیم
+    ; فرمول: (y * 320) + x
+    ; -----------------------------------------------------
 PUT_PIXEL PROC
-    PUSH AX
-    PUSH BX
-    PUSH DX
-    PUSH ES
-    PUSH DI
+                          PUSH AX
+                          PUSH BX
+                          PUSH DX
+                          PUSH ES
+                          PUSH DI
 
     ; چک میکنیم که نقطه بیرون صفحه نباشه
-    CMP  CX, 0
-    JL   SKIP_PIXEL
-    CMP  CX, 319
-    JG   SKIP_PIXEL
-    CMP  DI, 0
-    JL   SKIP_PIXEL
-    CMP  DI, 199
-    JG   SKIP_PIXEL
+                          CMP  CX, 0
+                          JL   SKIP_PIXEL
+                          CMP  CX, 319
+                          JG   SKIP_PIXEL
+                          CMP  DI, 0
+                          JL   SKIP_PIXEL
+                          CMP  DI, 199
+                          JG   SKIP_PIXEL
 
-    MOV  AX, 0A000h               ; آدرس شروع حافظه گرافیکی
-    MOV  ES, AX
+                          MOV  AX, 0A000h               ; آدرس شروع حافظه گرافیکی
+                          MOV  ES, AX
     
     ; محاسبه آدرس پیکسل
-    MOV  AX, DI
-    SHL  AX, 8                    ; ضرب در 256
-    MOV  BX, DI
-    SHL  BX, 6                    ; ضرب در 64
-    ADD  AX, BX                   ; جمعشون میشه ضرب در 320
-    ADD  AX, CX                   ; به علاوه x
+                          MOV  AX, DI
+                          SHL  AX, 8                    ; ضرب در 256
+                          MOV  BX, DI
+                          SHL  BX, 6                    ; ضرب در 64
+                          ADD  AX, BX                   ; جمعشون میشه ضرب در 320
+                          ADD  AX, CX                   ; به علاوه x
     
-    MOV  DI, AX
-    MOV  AL, color                ; رنگ رو میذاریم
-    MOV  ES:[DI], AL              ; مینویسیم تو حافظه
+                          MOV  DI, AX
+                          MOV  AL, color                ; رنگ رو میذاریم
+                          MOV  ES:[DI], AL              ; مینویسیم تو حافظه
 
-SKIP_PIXEL:
-    POP  DI
-    POP  ES
-    POP  DX
-    POP  BX
-    POP  AX
-    RET
+    SKIP_PIXEL:           
+                          POP  DI
+                          POP  ES
+                          POP  DX
+                          POP  BX
+                          POP  AX
+                          RET
 PUT_PIXEL ENDP
 
 END MAIN
